@@ -62,5 +62,29 @@ class Logistic(BaseModel):
 ## Variational Bayes
 There's a notebook inside <b>bayes/notebooks</b> called <b>variational_bayes</b> that holds both parts of this analyses. It starts from two hdf5 files, one containing sMRI data and another containing SNP data, they are already sorted by rows so that they ccorrespond. Visualizations for the outputs will be part of <b>.py</b> files since one of them requires another anaconda environment which does not have ipython or jupyter installed (and should not). That environment is specialized for the PySurfer module and because of Mayavi - it should not be altered in it's current state. 
 
-## CCA
-Sparse CCA is carried out in R, using the package PMA. To do this we use a singularity image just for R, the image can be found in the "singularity" repository.
+## Citation
+Please cite both papers:
+```
+@article{batmanghelich2016probabilistic,
+  title={Probabilistic modeling of imaging, genetics and diagnosis},
+  author={Batmanghelich, Nematollah K and Dalca, Adrian and Quon, Gerald and Sabuncu, Mert and Golland, Polina},
+  journal={IEEE transactions on medical imaging},
+  volume={35},
+  number={7},
+  pages={1765--1779},
+  year={2016},
+  publisher={IEEE}
+}
+
+@article{carbonetto2012scalable,
+  title={Scalable variational inference for Bayesian variable selection in regression, and its accuracy in genetic association studies},
+  author={Carbonetto, Peter and Stephens, Matthew and others},
+  journal={Bayesian analysis},
+  volume={7},
+  number={1},
+  pages={73--108},
+  year={2012},
+  publisher={International Society for Bayesian Analysis}
+}
+
+```
