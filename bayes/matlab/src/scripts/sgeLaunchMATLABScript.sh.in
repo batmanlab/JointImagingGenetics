@@ -1,0 +1,131 @@
+#! /bin/bash
+#
+# command and is designed to be run via qsub, as in:
+#		qsub /path/to/scriptname
+#
+# The script can be customized as needed.
+#
+################################## START OF EMBEDDED SGE COMMANDS #######################
+### SGE will read options that are treated by the shell as comments. The
+### SGE parameters must begin with the characters "#$", followed by the
+### option.
+###
+### There should be no blank lines or non-comment lines within the block of
+### embedded "qsub" commands.
+###
+############################ Stadard parameters to the "qsub" command ##########
+#### Set the shell (under SGE).
+#$ -S /bin/bash
+####
+#### Run the commands in the directory where the SGE "qsub" command was given:
+#$ -cwd
+####
+#### save the standard output. By default, the output will be saved into your
+#### home directory. The "-o" option lets you specify an alternative directory.
+#$ -o /data/vision/polina/users/kayhan/sge_log_out/sgeLaunchMATLABExec.$JOB_ID.stdout
+#### save the standard error:
+#$ -e /data/vision/polina/users/kayhan/sge_log_out/sgeLaunchMATLABExec.$JOB_ID.stderr
+####
+#### My email address:
+#$ -M kayhan@csail.mit.edu
+#### send mail at the beginning of the job
+#$ -m b #### send mail at the end of the job
+#$ -m e #### send mail in case the job is aborted
+#$ -m a
+##################################
+#### Optional SGE "qsub" parameters that could be used to customize
+#### the submitted job. In each case, remove the string:
+####		REMOVE_THIS_STRING_TO_ENABLE_OPTION
+#### but leave the characters:
+#### 		#$
+#### at the beginning of the line.
+####
+####
+### Indicate that the job is short, and will complete in under 15 minutes so
+### that SGE can give it priority.
+### 	WARNING! If the job takes more than 15 minutes it will be killed.
+#REMOVE_THIS_STRING_TO_ENABLE_OPTION$ -l short
+####
+####
+#### Request that the job be given 6 "slots" (CPUS) on a single server instead
+#### of 1. You MUST use this if your program is multi-threaded, you should NOT
+#### use it otherwise. Most jobs are not multi-threaded and will not need this
+#### option.
+#REMOVE_THIS_STRING_TO_ENABLE_OPTION$ -pe threaded 6
+####
+####
+####
+#### Request that the job only run on a node that has at least 15GB of RAM free.
+#### If your analysis will require a lot of memory, set this option.
+####  *** This is optional, and helps SGE determine where to run jobs ***
+#$ -l mem_free=15G 
+####
+####
+####
+####
+#### 
+#### The "h_vmem" parameter gives the hard limit on the amount of memory
+#### that a job is allowed to use. As of May 6, 2011, that limit is
+#### 8GB. Please consult wit the SGE documentation on the Wiki for
+#### current informaiton.
+#### 
+#### In order to use more memory in a single job, you MUST set the
+#### "h_vmem" parameter. Jobs that exceed the "h_vmem" value (by even
+#### a single byte) will be automatically killed by the scheduler.
+#### 
+#### Setting the "h_vmem" parameter too high will reduce the number
+#### of machines available to run your job, or the number of instances
+#### that can run at once.
+#### 
+#### 
+#REMOVE_THIS_STRING_TO_ENABLE_OPTION$ -l h_vmem=15G
+#### 
+################################## END OF DEFAULT EMBEDDED SGE COMMANDS###################
+
+
+# Send some output to standard output (saved into the
+# file /data/vision/polina/users/kayhan/sge_log_out/sgeLaunchMATLABExec.$JOB_ID.stdout) and standard error (saved
+# into the file /data/vision/polina/users/kayhan/sge_log_out/sgeLaunchMATLABExec.$JOB_ID.stderr) to make
+# it easier to diagnose queued commands
+
+/bin/echo -e "Executing in: \c"; pwd
+/bin/echo -e "Executing on: \c"; hostname
+/bin/echo -e "Executing at: \c"; date
+
+echo "------------------------------------------"
+exe_name=`basename   "$1"`
+exe_dir=`dirname     "$1"`  
+echo Setting up environment variables
+MCRROOT=@MCR_DIR@
+echo ---
+LD_LIBRARY_PATH=.:${MCRROOT}/runtime/glnxa64 ;
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRROOT}/bin/glnxa64 ;
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRROOT}/sys/os/glnxa64;
+MCRJRE=${MCRROOT}/sys/java/jre/glnxa64/jre/lib/amd64 ;
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRJRE}/native_threads ; 
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRJRE}/server ;
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRJRE}/client ;
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRJRE} ; 
+LD_LIBRARY_PATH=@ITK_DIR@:${LD_LIBRARY_PATH}
+XAPPLRESDIR=${MCRROOT}/X11/app-defaults ;
+export LD_LIBRARY_PATH;
+export XAPPLRESDIR;
+echo LD_LIBRARY_PATH is ${LD_LIBRARY_PATH};
+shift 1
+args=
+while [ $# -gt 0 ]; do
+    token=`echo "$1" | sed 's/ /\\\\ /g'`   # Add blackslash before each blank
+    args="${args} ${token}" 
+    shift
+done
+tmpFolder=$(mktemp -d)
+echo "temporary folder is located at : ${tmpFolder}"
+export MCR_CACHE_ROOT=${tmpFolder}
+echo "runnig :  "${exe_dir}"/"${exe_name}"   $args"
+
+"${exe_dir}"/"${exe_name}"   $args
+rm -rf ${tmpFolder}
+
+
+
+

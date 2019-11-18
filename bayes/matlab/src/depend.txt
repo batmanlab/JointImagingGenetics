@@ -1,0 +1,7 @@
+addpath /om/user/ysa/genus/bayes/basis/bayesianImagingGenetics/src
+
+addpath /om/user/ysa/genus/bayes/basis/gpml
+
+run('/om/user/ysa/genus/bayes/basis/gpml/startup.m')
+
+addpath /om/user/ysa/genus/bayes/basis/varbvs/varbvs-MATLAB/MATLAB
